@@ -239,6 +239,106 @@ func (squareRule) restrict(entry *entry, possibilities *possibilities) {
 
 // endregion
 
+// region Chess King Rule
+
+func ChessKingRule() Rule {
+	return chessKingRule{}
+}
+
+type chessKingRule struct{}
+
+func (chessKingRule) isInvalid(grid *Grid) bool {
+	for row := 0; row < Size; row++ {
+		for column := 0; column < Size; column++ {
+			if grid.isCellEmpty(row, column) {
+				continue
+			}
+
+			value := grid.values[row][column]
+			for r := row - 1; r <= row+1; r++ {
+				for c := column - 1; c <= column+1; c++ {
+					if r != row && c != column &&
+						isValidPair(r, c) &&
+						grid.values[r][c] == value {
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+func (chessKingRule) deduction(_ *Grid, _ *possibilities) (*entry, bool) {
+	return nil, false
+}
+
+func (chessKingRule) restrict(entry *entry, possibilities *possibilities) {
+	possibilities.safeRemove(entry.row+1, entry.column-1, entry.value)
+	possibilities.safeRemove(entry.row+1, entry.column, entry.value)
+	possibilities.safeRemove(entry.row+1, entry.column+1, entry.value)
+	possibilities.safeRemove(entry.row, entry.column+1, entry.value)
+	possibilities.safeRemove(entry.row-1, entry.column+1, entry.value)
+	possibilities.safeRemove(entry.row-1, entry.column, entry.value)
+	possibilities.safeRemove(entry.row-1, entry.column-1, entry.value)
+	possibilities.safeRemove(entry.row, entry.column-1, entry.value)
+}
+
+// endregion
+
+// region Chess King Rule
+
+func ChessKnightRule() Rule {
+	return chessKnightRule{}
+}
+
+type chessKnightRule struct{}
+
+func (chessKnightRule) isInvalid(grid *Grid) bool {
+	for row := 0; row < Size; row++ {
+		for column := 0; column < Size; column++ {
+			if grid.isCellEmpty(row, column) {
+				continue
+			}
+
+			value := grid.values[row][column]
+			for near := -1; near <= 1; near += 2 {
+				for far := -2; far <= 2; far += 4 {
+					r, c := row+near, column+far
+					if isValidPair(r, c) && grid.values[r][c] == value {
+						return true
+					}
+
+					r, c = row+far, column+near
+					if isValidPair(r, c) && grid.values[r][c] == value {
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+func (chessKnightRule) deduction(_ *Grid, _ *possibilities) (*entry, bool) {
+	return nil, false
+}
+
+func (chessKnightRule) restrict(entry *entry, possibilities *possibilities) {
+	possibilities.safeRemove(entry.row+2, entry.column-1, entry.value)
+	possibilities.safeRemove(entry.row+2, entry.column+1, entry.value)
+	possibilities.safeRemove(entry.row-2, entry.column-1, entry.value)
+	possibilities.safeRemove(entry.row-2, entry.column+1, entry.value)
+	possibilities.safeRemove(entry.row+1, entry.column+2, entry.value)
+	possibilities.safeRemove(entry.row-1, entry.column+2, entry.value)
+	possibilities.safeRemove(entry.row+1, entry.column-2, entry.value)
+	possibilities.safeRemove(entry.row-1, entry.column-2, entry.value)
+}
+
+// endregion
+
 // region Helpers
 
 func isValidPair(row, column int) bool {
