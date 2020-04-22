@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+  sudoku:
+    build:
+      context: .
+    image: sudoku
+    ports:
+    - "8080:8080" # rest
+    command:
+    - ./server
+    - --address=:8080 # The address for http calls to this service.
