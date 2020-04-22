@@ -67,6 +67,12 @@ func (p *possibilities) isSame(rowA, columnA, rowB, columnB int) bool {
 	return true
 }
 
+func (p *possibilities) safeRemove(row, column, value int) {
+	if isValidPair(row, column) {
+		delete(p[row][column], value)
+	}
+}
+
 func (p *possibilities) set(row, column, value int) {
 	p[row][column] = map[int]struct{}{value: {}}
 }
