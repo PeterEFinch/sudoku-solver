@@ -3,17 +3,14 @@ FROM golang:1.14 as builder
 
 WORKDIR /project
 
-# Copies and downloads dependencies
-COPY /go.mod ./go.mod
-RUN go mod vendor
-
 # Copies folder
 COPY /api ./api
 COPY /cli ./cli
 COPY /internal ./internal
 
-# See which patch version of Go is used (important for security updates)
-RUN go version
+# Copies and downloads dependencies
+COPY /go.mod ./go.mod
+RUN go mod vendor
 
 #Builds go binary
 RUN CGO_ENABLED=0        \
