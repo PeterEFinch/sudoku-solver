@@ -1,5 +1,5 @@
 #1st stage: build go binary
-FROM golang:1.14 as builder
+FROM golang:1.18 as builder
 
 WORKDIR /project
 
