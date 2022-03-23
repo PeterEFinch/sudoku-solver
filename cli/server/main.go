@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"net/http"
 	"os"
@@ -33,9 +34,9 @@ func main() {
 
 	// Starts server
 	log.Info().Str("address", *address).Msg("starting server")
-	err := server.ListenAndServe()
-	if err != nil && err != http.ErrServerClosed {
-		log.Fatal().Err(err).Str("address", *address).Msg("listen and serve failed")
+	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		log.Error().Err(err).Str("address", *address).Msg("listen and serve failed")
+		os.Exit(1)
 	}
 }
 
@@ -47,7 +48,7 @@ func shutdownOnSignal(server *http.Server, signals ...os.Signal) {
 		return
 	}
 
-	// Creates channel for signals and
+	// Creates channel for signals to be notified on
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, signals...)
 
@@ -60,9 +61,8 @@ func shutdownOnSignal(server *http.Server, signals ...os.Signal) {
 
 		// Gracefully shuts down the server
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		err := server.Shutdown(ctx)
-		if err != nil {
-
+		if err := server.Shutdown(ctx); err != nil {
+			log.Warn().Err(err).Msg("failed to shutdown server")
 		}
 
 		// Cancel context
